@@ -7,27 +7,27 @@ using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour, IDamageable
 {
-    private enum enemyState
+    protected enum enemyState
     {
         Idle, 
         Find,
         Move,
         Attack
     }
-    [SerializeField] private enemyState state = enemyState.Idle;
+    [SerializeField] protected enemyState state = enemyState.Idle;
 
-    [SerializeField] private EnemyData data;
+    [SerializeField] protected EnemyData data;
 
     [SerializeField] private bool isAttack = false;
-    [SerializeField] private int hp;
+    [SerializeField] protected int hp;
     private float currentFindTime = 0;
 
-    private Rigidbody rb;
-    private NavMeshAgent nav;
-    private Transform playerTrm;
-    private Transform attackPos;
+    protected Rigidbody rb;
+    protected NavMeshAgent nav;
+    protected Transform playerTrm;
+    protected Transform attackPos;
 
-    private void Awake() 
+    protected void SetValue()//Awake에 넣어줌
     {
         playerTrm = GameObject.Find("Player").GetComponent<Transform>();
         attackPos = transform.Find("AttackPoint").GetComponent<Transform>();
@@ -37,7 +37,7 @@ public class Enemy : MonoBehaviour, IDamageable
         hp = data.hp;
     }
 
-    private void Update() 
+    protected void FSMCycle()//UpDate에 넣어줌
     {
         switch (state)
         {
@@ -53,7 +53,7 @@ public class Enemy : MonoBehaviour, IDamageable
             case enemyState.Attack:
                 Attack();
                 break;
-        }    
+        } 
 
         if(hp <= 0)
         {
@@ -61,7 +61,7 @@ public class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    private void Idle()
+    protected virtual void Idle()
     {
         Debug.Log("Idle");
         if((playerTrm.position - transform.position).magnitude <= data.findDistance)
@@ -70,7 +70,7 @@ public class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    private void Finding()
+    protected virtual void Finding()
     {
         Debug.Log("Finding");
         currentFindTime += Time.deltaTime;
@@ -87,7 +87,7 @@ public class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    private void Move()
+    protected virtual void Move()
     {
         Debug.Log("Move");
 
@@ -105,7 +105,7 @@ public class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    private void Attack()
+    protected virtual void Attack()
     {
         if(!isAttack)
         {
@@ -116,7 +116,7 @@ public class Enemy : MonoBehaviour, IDamageable
         transform.LookAt(playerTrm);
     }
 
-    private IEnumerator AttackCoroutine()
+    protected IEnumerator AttackCoroutine()
     {
         isAttack = true;
 
@@ -137,12 +137,12 @@ public class Enemy : MonoBehaviour, IDamageable
         isAttack = false;
     }
 
-    private void Die()
+    protected virtual void Die()
     {
         //"해줘"
     }
     
-    public void Damaged(int damage)
+    public void OnDamaged(int damage)
     {
         hp -= damage;
     }
