@@ -8,7 +8,7 @@ public class WeaponSwab : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 
     void Update()
@@ -22,19 +22,21 @@ public class WeaponSwab : MonoBehaviour
         if (Input.GetAxisRaw("Mouse ScrollWheel") < 0)
         {
             GameObject _weapon = weapons[0];
-            for(int i = 0; i < weapons.Count - 1; i++)
+            for (int i = 0; i < weapons.Count - 1; i++)
             {
-                    weapons[i] = weapons[i + 1];
+                Debug.Log(Input.GetAxisRaw("Mouse ScrollWheel"));
+                weapons[i] = weapons[i + 1];
             }
             weapons[weapons.Count - 1] = _weapon;
         }
-        if(Input.GetAxisRaw("Mouse ScrollWheel") > 0)
+        if (Input.GetAxisRaw("Mouse ScrollWheel") > 0)
         {
             GameObject _weapon = weapons[0];
-            for(int i = weapons.Count ; i >= 0; i--)
+            for (int i = weapons.Count - 1; i > 0; i--)
             {
-
+                weapons[i - 1] = weapons[i];
             }
+            weapons[weapons.Count - 1] = _weapon;
         }
     }
 }
