@@ -5,145 +5,65 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Enemy : MonoBehaviour, IDamageable
+public abstract class Enemy : MonoBehaviour, IDamageable
 {
-    protected enum enemyState
+    public enum enemyState
     {
-        Idle, 
-        Find,
+        Idle,
+        Finding,
         Move,
-        Attack
+        Attack,
+        Die
     }
-    [SerializeField] protected enemyState state = enemyState.Idle;
+    public enemyState state = enemyState.Idle;
 
     [SerializeField] protected EnemyData data;
+    [SerializeField] protected bool isAttack = false;
 
-    [SerializeField] private bool isAttack = false;
-    [SerializeField] protected int hp;
-    private float currentFindTime = 0;
-
-    protected Rigidbody rb;
-    protected NavMeshAgent nav;
     protected Transform playerTrm;
-    protected Transform attackPos;
+    protected NavMeshAgent nav;
 
-    protected void SetValue()//Awake에 넣어줌
+    private void Awake() 
     {
         playerTrm = GameObject.Find("Player").GetComponent<Transform>();
-        attackPos = transform.Find("AttackPoint").GetComponent<Transform>();
-        rb = GetComponent<Rigidbody>();
         nav = GetComponent<NavMeshAgent>();
-
-        hp = data.hp;
     }
 
-    protected void FSMCycle()//UpDate에 넣어줌
+    protected IEnumerator FSMCycle()
     {
-        switch (state)
+        while (state != enemyState.Die)
         {
-            case enemyState.Idle:
-                Idle();
-                break;
-            case enemyState.Find:
-                Finding();
-                break;
-            case enemyState.Move:
-                Move();
-                break;
-            case enemyState.Attack:
-                Attack();
-                break;
-        } 
+            switch(state)
+            {
+                case enemyState.Idle:
+                    Idle();
+                    break;
+                case enemyState.Finding:
+                    Finding();
+                    break;
+                case enemyState.Move:
+                    Move();
+                    break;
+                case enemyState.Attack:
+                    Attack();
+                    break;
+            }
 
-        if(hp <= 0)
-        {
-            Die();
+            yield return new WaitForSeconds(0.1f);
         }
+
+        OnDie();
     }
+    protected abstract void Idle();
+    protected abstract void Finding();
+    protected abstract void Move();
+    protected abstract void Attack();
+    protected abstract void OnDie();
+    public abstract void OnDamaged(int damage);
 
-    protected virtual void Idle()
+    protected float GetDistance()
     {
-        Debug.Log("Idle");
-        if((playerTrm.position - transform.position).magnitude <= data.findDistance)
-        {
-            state = enemyState.Find;
-        }
-    }
-
-    protected virtual void Finding()
-    {
-        Debug.Log("Finding");
-        currentFindTime += Time.deltaTime;
-
-        if((playerTrm.position - transform.position).magnitude > data.findDistance)
-        {
-            state = enemyState.Idle;
-            currentFindTime = 0;
-        }
-        else if(currentFindTime >= data.findTime)
-        {
-            state = enemyState.Move;
-            currentFindTime = 0;
-        }
-    }
-
-    protected virtual void Move()
-    {
-        Debug.Log("Move");
-
-        nav.SetDestination(playerTrm.position);
-
-        if((playerTrm.position - transform.position).magnitude <= data.attackDistance)
-        {
-            nav.SetDestination(transform.position);
-            state = enemyState.Attack;
-        }
-        else if((playerTrm.position - transform.position).magnitude > data.findDistance)
-        {
-            nav.SetDestination(transform.position);
-            state = enemyState.Idle;
-        }
-    }
-
-    protected virtual void Attack()
-    {
-        if(!isAttack)
-        {
-            StartCoroutine(AttackCoroutine());
-            Debug.Log("Attack");
-        }
-        
-        transform.LookAt(playerTrm);
-    }
-
-    protected IEnumerator AttackCoroutine()
-    {
-        isAttack = true;
-
-        yield return new WaitForSeconds(data.attackDelay);
-
-        Collider[] cols = Physics.OverlapSphere(attackPos.position, data.attackRadius, 1 << 6);
-
-        foreach(Collider player in cols)
-        {
-            Debug.Log("플레이어 맞아당 허허"); //player hit 넣으셈
-        }
-
-        if((playerTrm.position - transform.position).magnitude > data.attackDistance)
-        {
-            state = enemyState.Move;
-        }
-
-        isAttack = false;
-    }
-
-    protected virtual void Die()
-    {
-        //"해줘"
-    }
-    
-    public void OnDamaged(int damage)
-    {
-        hp -= damage;
+        Vector3 dir = (playerTrm.position - transform.position);
+        return dir.magnitude;
     }
 }

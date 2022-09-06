@@ -16,7 +16,7 @@ MonoBehaviour:
   attackPower: 5
   moveSpeed: 2
   attackRadius: 0.5
-  findDistance: 10
+  findDistance: 5
   findTime: 2.5
-  attackDistance: 2
+  attackDistance: 1.5
   attackDelay: 2
