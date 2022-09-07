@@ -18,13 +18,17 @@ public class a : Enemy
     protected override void Idle()
     {
         Debug.Log("idle");
-        if(CheckAngle() || GetDistance() <= data.findDistance)
+        if(GetDistance() <= data.findDistance)
         {
-            Debug.Log("find");
-            state = enemyState.Move;
+            if(CheckAngle() || GetDistance() <= data.moveDistance)
+            {
+                Debug.Log("find");
+                state = enemyState.Move;
+            }
         }
     }
 
+    //여기선 안씀
     protected override void Finding()
     {
         throw new System.NotImplementedException();
@@ -53,12 +57,17 @@ public class a : Enemy
 
     protected override void OnDie()
     {
-        throw new NotImplementedException();
+        Debug.Log("die");
     }
 
     public override void OnDamaged(int damage)
     {
-        throw new NotImplementedException();
+        hp -= damage;
+
+        if(hp <= 0)
+        {
+            state = enemyState.Die;
+        }
     }
 
     private IEnumerator AttackCoroutine()

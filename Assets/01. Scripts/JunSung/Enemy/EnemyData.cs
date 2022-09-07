@@ -13,6 +13,7 @@ public class EnemyData : ScriptableObject
     public float attackRadius;
     public float findDistance;
     public float findTime;
+    public float moveDistance;
     public float attackDistance;
     public float attackDelay;
 }

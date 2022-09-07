@@ -19,6 +19,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     [SerializeField] protected EnemyData data;
     [SerializeField] protected bool isAttack = false;
+    [SerializeField] protected int hp;
 
     protected Transform playerTrm;
     protected NavMeshAgent nav;
@@ -27,6 +28,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     {
         playerTrm = GameObject.Find("Player").GetComponent<Transform>();
         nav = GetComponent<NavMeshAgent>();
+
+        hp = data.hp;
     }
 
     protected IEnumerator FSMCycle()
@@ -48,12 +51,12 @@ public abstract class Enemy : MonoBehaviour, IDamageable
                     Attack();
                     break;
             }
-
-            yield return new WaitForSeconds(0.1f);
         }
-
         OnDie();
+
+        yield return new WaitForSeconds(0.1f);
     }
+
     protected abstract void Idle();
     protected abstract void Finding();
     protected abstract void Move();
@@ -63,7 +66,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     protected float GetDistance()
     {
-        Vector3 dir = (playerTrm.position - transform.position);
-        return dir.magnitude;
+        return (playerTrm.position - transform.position).magnitude;
     }
 }
