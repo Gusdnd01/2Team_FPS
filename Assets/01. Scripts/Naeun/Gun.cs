@@ -11,7 +11,7 @@ public class Gun : Weapon
         Reloading, // 재장전
         FineSight, // 정조준
     }
-    public State state { get; private set; }
+    public State state { get; protected set; }
 
     [Header("data")]
     [SerializeField] protected WeaponDataSo weaponData;
@@ -38,7 +38,7 @@ public class Gun : Weapon
     [Header("camera")]
     [SerializeField] protected Camera cam;
 
-    [Header("")]
+    [Header("Fire Pos")]
     [SerializeField] protected float curAttackDelay;
     [SerializeField] protected Vector3 originPos;
     [SerializeField] protected Vector3 fineSightPos; // 정조준 시 위치
@@ -47,13 +47,18 @@ public class Gun : Weapon
     {
         state = State.Ready;
         bulletLine.enabled = false;
+
+        maxBullet = 150;
+        mag = 15;
+        curBullet = mag;
+        reloadDelay = 1f;
     }
 
     protected void Start()
     {
-        if(state == State.Ready && Time.time >= weaponData.attackDelay)
+        if (state == State.Ready)
         {
-
+            StartCoroutine(TryFire());
         }
     }
 
@@ -68,34 +73,49 @@ public class Gun : Weapon
             curAttackDelay -= Time.deltaTime;
     }
 
-    void TryFire()
+    protected virtual IEnumerator TryFire()
     {
-        GunFireRate();
-
-        if(state == State.Ready)
+        while (true)
         {
-            if(curBullet > 0)
+            if (state == State.Ready)
             {
-                if(Input.GetMouseButtonDown(0) && curAttackDelay <= 0)
+                if (curBullet > 0)
                 {
+                    yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
                     Debug.Log(curAttackDelay);
                     state = State.Shoot;
                     LeftClick();
-                }
-                if (Input.GetMouseButtonUp(0))
+
+                    yield return new WaitUntil(() => Input.GetMouseButtonUp(0));
                     state = State.Ready;
+                }
+                else
+                    StartCoroutine(Reloading());
+
             }
-            else
-                StartCoroutine(Reloading());
+            yield return new WaitForSeconds(curAttackDelay);
         }
     }
 
     public override void LeftClick()
     {
         curAttackDelay = weaponData.attackDelay;
-        curBullet--; 
-
+        curBullet--;
+        print("left");
+        Debug.DrawRay(originPos, Vector3.forward, Color.blue, 0.5f);
+        Vector3 lazerStartPos = weaponMuzzle.position;
+        bulletLine.startWidth = 0.1f;
+        bulletLine.endWidth = 0.01f;
+        bulletLine.SetPosition(0, weaponMuzzle.position);
+        bulletLine.SetPosition(1, aimPoint.transform.position);
+        bulletLine.enabled = true;
+        StartCoroutine(LineDelete());
         // 발사 이펙트
+    }
+    protected IEnumerator LineDelete()
+    {
+        yield return new WaitForSeconds(0.05f);
+        bulletLine.enabled = false;
     }
     protected virtual IEnumerator Reloading()
     {
@@ -108,16 +128,9 @@ public class Gun : Weapon
 
     public override void RightClick()
     {
-        Vector3 lazerStartPos = weaponMuzzle.position;
-        bulletLine.startWidth = 0.1f;
-        bulletLine.endWidth = 0.2f;
-        bulletLine.SetPosition(0, weaponMuzzle.position);
-        bulletLine.SetPosition(1, aimPoint.transform.position);
-        bulletLine.enabled = true;
-
         if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, weaponData.range))
         {
-            if(hit.transform.tag == "Enemy")
+            if (hit.transform.tag == "Enemy")
             {
                 //IDamageAble
             }
