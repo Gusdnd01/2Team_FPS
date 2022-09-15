@@ -31,17 +31,17 @@ public class WeaponManager : MonoBehaviour
                 newIndex = weapons.Count - 1;
             }
 
+            print($"Prev : {curWeaponIndex}  New : {newIndex}");
             ChangeWeapon(weapons[newIndex], weapons[curWeaponIndex]);
             curWeaponIndex = newIndex;
-            print(newIndex);
         }
     }
 
     private void ChangeWeapon(Weapon newWeapon, Weapon prevWeapon)
         //prevWeapon은 끄고 newWeapon은 활성화 하기
     {
-        newWeapon.enabled = true;
-        prevWeapon.enabled = false;
+        newWeapon.gameObject.SetActive(true);
+        prevWeapon.gameObject.SetActive(false);
     }
 }
 

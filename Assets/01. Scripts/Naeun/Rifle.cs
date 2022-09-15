@@ -13,7 +13,6 @@ public class Rifle : Gun
                 if (curBullet > 0)
                 {
                     yield return new WaitUntil(() => Input.GetMouseButton(0));
-                    Debug.Log(curAttackDelay);
                     state = State.Shoot;
                     LeftClick();
 
@@ -24,7 +23,7 @@ public class Rifle : Gun
                     StartCoroutine(Reloading());
 
             }
-            yield return new WaitForSeconds(curAttackDelay);
+            yield return new WaitForSeconds(data.attackDelay);
         }
     }
 }

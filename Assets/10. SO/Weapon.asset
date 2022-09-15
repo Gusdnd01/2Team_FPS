@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4f2001dc1a5fd049a39f15fd1b61ebc, type: 3}
   m_Name: Weapon
   m_EditorClassIdentifier: 
+  shotClip: {fileID: 8300000, guid: 6ea566db06109e34b8386951ace1ff8f, type: 3}
+  reloadClip: {fileID: 8300000, guid: 6ea566db06109e34b8386951ace1ff8f, type: 3}
+  swapClip: {fileID: 8300000, guid: 6ea566db06109e34b8386951ace1ff8f, type: 3}
   bulletCapacity: 5
   attackDelay: 0.5
   range: 5
